@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Data Crawling Jawa Pos</title>
+  </head>
+  <style>
+    /* Tambahkan CSS ini ke dalam file style.css atau dalam tag <style> pada file HTML */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    table th,
+    table td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #f2f2f2;
+      color: #333;
+      font-weight: bold;
+      border-bottom: 2px solid #ddd;
+    }
+
+    table tr {
+      background-color: #fff;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    table tr:hover {
+      background-color: #ddd;
+    }
+
+    table td a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    table td a:hover {
+      text-decoration: underline;
+      color: #0056b3;
+    }
+  </style>
+  <body>
+    <div>
+      <h2>Data Crawling Jawa Pos</h2>
+      <p id="dateShow"></p>
+      <form id="inputForm">
+        <label for="pages">Pages :</label>
+        <input type="text" name="pages" id="pages" placeholder="Insert here" style="width: 25px" required />
+        <label for="date1">Choose first date:</label>
+        <input type="date" id="date1" name="date1" />
+        <label for="date2">Choose second date:</label>
+        <input type="date" id="date2" name="date2" />
+        <button type="submit">submit</button>
+      </form>
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody id="data-table">
+          <!-- Data crawled akan ditampilkan di sini -->
+        </tbody>
+      </table>
+    </div>
+    <script>
+      document.getElementById("inputForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Mencegah pengiriman formulir standar
+        const dataTable = document.getElementById("data-table");
+        const pages = document.getElementById("pages").value;
+        const date1 = document.getElementById("date1").value;
+        const date2 = document.getElementById("date2").value;
+        const dateNow = new Date();
+        const dateElem = document.getElementById("dateShow");
+
+        function getMonth(date10) {
+          var date1 = new Date(date10);
+          var options = { year: "numeric", month: "long", day: "numeric" };
+          var month = date1.toLocaleDateString("en-US", options); // Menggunakan 'id-ID' untuk menampilkan nama bulan dalam bahasa Indonesia
+          return month.split(" ")[0];
+        }
+
+        const mth1 = getMonth(date1);
+        const mth2 = getMonth(date2);
+        if (date1 === "" || date2 === "") {
+          var konfirm = confirm("Data shown will be the latest");
+
+          if (konfirm === true) {
+            const dateShow = (dateElem.textContent = "Crawl Data Date :" + dateNow.toLocaleString());
+            fetch("/data", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              mode: "cors",
+              body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data === false) {
+                  alert("Pages yang Anda masukkan melebihi dari yang tersedia");
+                }
+                data.forEach((result) => {
+                  const row = dataTable.insertRow();
+                  row.insertCell(0).textContent = result.id;
+                  row.insertCell(1).textContent = result.title;
+                  row.insertCell(2).textContent = result.category;
+                  row.insertCell(3).textContent = result.date;
+                  row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
+                });
+              })
+              .catch((error) => {
+                console.error("Terjadi kesalahan:", error);
+              });
+          }
+        } else {
+          const dateShow = (dateElem.textContent = `Data Crawl Date : ${date2} - ${date1}`);
+          fetch("/data", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            mode: "cors",
+            body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data === false) {
+                alert("Pages yang Anda masukkan melebihi dari yang tersedia");
+              }
+              data.forEach((result) => {
+                const row = dataTable.insertRow();
+                row.insertCell(0).textContent = result.id;
+                row.insertCell(1).textContent = result.title;
+                row.insertCell(2).textContent = result.category;
+                row.insertCell(3).textContent = result.date;
+                row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
+              });
+            })
+            .catch((error) => {
+              console.error("Terjadi kesalahan:", error);
+            });
+        }
+      });
+    </script>
+  </body>
+</html>
