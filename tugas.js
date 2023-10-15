@@ -46,38 +46,52 @@ async function pageCheck(url) {
 	let checkPage;
 	const response = await axios.get(url, { headers });
 	const $ = cheerio.load(response.data);
-	$(
-		"body > div:nth-child(5) > div > div > div.col-bs10-7 > section > div.paging.paging--page.clearfix > div > div:nth-child(9)",
-	).each((index, element) => {
+	$("body div > div > div.col-bs10-7 > section > div.paging.paging--page.clearfix > div > div:nth-child(9)").each((index, element) => {
 		checkPage = $(element).find("a").text().trim();
 	});
 	return checkPage;
 }
 
 // Fungsi untuk mengambil data artikel
-app.post("/data", (req, res) => {
+app.post("/data", async (req, res) => {
 	const { pages, date1, date2, mth1, mth2 } = req.body;
-	let validate;
+	let validate, paging, Url;
+	let page = 1;
 
-	if (date1.type === undefined && date2.type === undefined) {
+	if (date1 === "" && date2 === "") {
 		validate = false;
 	} else {
 		validate = true;
 	}
-	const links = [];
-	let page = 1;
-	let Url;
-	async function crawlNext(validate) {
-		try {
-			if (validate) {
-				Url = `https://www.jawapos.com/indeks-berita?daterange=${date2.split("-")[2]
-					}%20${mth2}%20${date2.split("-")[0]}%20-%20${date1.split("-")[2]
-					}%20${mth1}%20${date1.split("-")[0]}&page=${page}`;
-			} else {
-				Url = `https://www.jawapos.com/indeks-berita?daterange=&page=${page}`;
-			}
 
-			if (page <= pages) {
+	if (validate) {
+		Url = `https://www.jawapos.com/indeks-berita?daterange=${date2.split("-")[2]}%20${mth2}%20${date2.split("-")[0]}%20-%20${date1.split("-")[2]}%20${mth1}%20${date1.split("-")[0]}&page=${page}`;
+	} else {
+		Url = `https://www.jawapos.com/indeks-berita?daterange=&page=${page}`;
+	}
+
+	const pageAmount = await pageCheck(Url);
+
+	if (pages > parseInt(pageAmount)) {
+		console.log("Masuk true");
+		paging = false;
+		res.send(paging);
+	} else {
+		console.log("Masuk false");
+		paging = true;
+	}
+
+	const links = [];
+	async function crawlNext() {
+
+		if (validate) {
+			Url = `https://www.jawapos.com/indeks-berita?daterange=${date2.split("-")[2]}%20${mth2}%20${date2.split("-")[0]}%20-%20${date1.split("-")[2]}%20${mth1}%20${date1.split("-")[0]}&page=${page}`;
+		} else {
+			Url = `https://www.jawapos.com/indeks-berita?daterange=&page=${page}`;
+		}
+
+		try {
+			if (page <= pages && paging) {
 				const datas = await crawlPage(Url);
 				if (datas) {
 					console.log(`Masuk page ${page}`);
@@ -86,7 +100,7 @@ app.post("/data", (req, res) => {
 					crawlNext();
 				}
 			} else {
-				res.json(links);
+				res.json({ links, pageAmount });
 				nomor = 0;
 			}
 		} catch (error) {
@@ -94,7 +108,7 @@ app.post("/data", (req, res) => {
 		}
 	}
 
-	crawlNext(validate);
+	crawlNext();
 });
 
 app.post("/content", async (req, res) => {
@@ -103,7 +117,6 @@ app.post("/content", async (req, res) => {
 	try {
 		const response = await axios.get(URL, { headers });
 		const $ = cheerio.load(response.data);
-		// Menggunakan selector yang Anda sebutkan untuk mengambil href
 		const links = [];
 		$("body div > div > div.col-bs10-7 > div > div.col-bs10-7.col-offset-0 > article").each((index, element) => {
 			$(element).find("strong").remove();
@@ -133,7 +146,6 @@ app.post("/content", async (req, res) => {
 				links.push({ id: index + 1, title: title, content: content, author: author, date: date, category: category });
 			});
 		});
-		// console.log(links);
 		res.json(links);
 	} catch (error) {
 		console.error("Error di server woy", error);
