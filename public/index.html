@@ -6,51 +6,6 @@
 		<link rel="stylesheet" href="style.css" />
 		<title>Data Crawling Jawa Pos</title>
 	</head>
-	<style>
-		/* Tambahkan CSS ini ke dalam file style.css atau dalam tag <style> pada file HTML */
-		table {
-			width: 100%;
-			border-collapse: collapse;
-			border-spacing: 0;
-		}
-
-		table th,
-		table td {
-			padding: 12px;
-			text-align: left;
-		}
-
-		table th {
-			background-color: #f2f2f2;
-			color: #333;
-			font-weight: bold;
-			border-bottom: 2px solid #ddd;
-		}
-
-		table tr {
-			background-color: #fff;
-			transition: background-color 0.3s ease-in-out;
-		}
-
-		table tr:nth-child(even) {
-			background-color: #f2f2f2;
-		}
-
-		table tr:hover {
-			background-color: #ddd;
-		}
-
-		table td a {
-			text-decoration: none;
-			color: #007bff;
-			font-weight: bold;
-		}
-
-		table td a:hover {
-			text-decoration: underline;
-			color: #0056b3;
-		}
-	</style>
 	<body>
 		<div>
 			<h2>Data Crawling Jawa Pos</h2>
@@ -66,8 +21,12 @@
 			</form>
 			<dialog id="popupDialog">
 				<h2 id="newsTitle">News Title</h2>
-  				<p id="newsContent">News content</p>
-  			<button id="closePopUp">Close</button>
+				<p class="author">Author : <span id="newsAuthor">News Author</span></p>
+				<p class="category">Category : <span id="newsCategory">News Category</span></p>
+				<p class="publishDate">Date Publish : <span id="newsDate">News Publish Date</span></p>
+				<p class="contentHead">Content :</p>
+				<p id="newsContent">News Content</p>
+				<button id="closePopUp">Close</button>
 			</dialog>
 			<table id="mainTable">
 				<thead>
@@ -85,147 +44,6 @@
 				</tbody>
 			</table>
 		</div>
-		<script>
-			const popupDialog = document.getElementById("popupDialog");
-			const closePopUp = document.getElementById("closePopUp");
-			const newsTitle = document.getElementById("newsTitle");
-			const newsContent = document.getElementById("newsContent");
-
-			closePopUp.addEventListener("click", () => {
-  			popupDialog.close(); // Menutup pop-up
-			});
-
-			document.getElementById("inputForm").addEventListener("submit", function (event) {
-				event.preventDefault(); // Mencegah pengiriman formulir standar
-				const dataTable = document.getElementById("data-table");
-				const pages = document.getElementById("pages").value;
-				const date1 = document.getElementById("date1").value;
-				const date2 = document.getElementById("date2").value;
-				const dateNow = new Date();
-				const dateElem = document.getElementById("dateShow");
-
-				function getMonth(date10) {
-					var date1 = new Date(date10);
-					var options = { year: "numeric", month: "long", day: "numeric" };
-					var month = date1.toLocaleDateString("en-US", options); // Menggunakan 'id-ID' untuk menampilkan nama bulan dalam bahasa Indonesia
-					return month.split(" ")[0];
-				}
-
-					const mth1 = getMonth(date1);
-					const mth2 = getMonth(date2);
-					if (date1 === "" || date2 === "") {
-						var konfirm = confirm("Data shown will be the latest");
-
-						if (konfirm === true) {
-							const dateShow = (dateElem.textContent =
-								"Crawl Data Date :" + dateNow.toLocaleString());
-							fetch("/data", {
-								method: "POST",
-								headers: { "Content-Type": "application/json" },
-								mode: "cors",
-								body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
-							})
-								.then((response) => response.json())
-								.then((data) => {
-									if (data === false) {
-										alert(
-											"Pages yang Anda masukkan melebihi dari yang tersedia",
-										);
-									}
-									data.forEach((result) => {
-										const row = dataTable.insertRow();
-										const URL = result.url;
-										let getNews, getTitle;
-										row.insertCell(0).textContent = result.id;
-										row.insertCell(1).textContent = result.title;
-										row.insertCell(2).textContent = result.category;
-										row.insertCell(3).textContent = result.date;
-										row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
-										const contentBtn = row.insertCell(5);
-										const btn = document.createElement("button");
-										btn.textContent = "View Content";
-										btn.addEventListener("click", function () {
-											fetch("/content", {
-												method: "POST",
-												headers: { "Content-Type": "application/json" },
-												mode: "cors",
-												body: JSON.stringify({ URL }),
-											})
-												.then((response) => response.json())
-												.then((data) => {
-													data.forEach((result) => {
-														getNews = result.content;
-														getTitle =  result.title;
-														newsTitle.textContent = getTitle;
-														newsContent.textContent = getNews;
-  														popupDialog.showModal();
-													})
-												})
-												.catch((error) => {
-													console.error("Terjadi kesalahan:", error);
-												});
-										});
-										contentBtn.appendChild(btn);
-									});
-								})
-								.catch((error) => {
-									console.error("Terjadi kesalahan:", error);
-								});
-						}
-					} else {
-						const dateShow =
-							(dateElem.textContent = `Data Crawl Date : ${date2} - ${date1}`);
-						fetch("/data", {
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							mode: "cors",
-							body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
-						})
-							.then((response) => response.json())
-							.then((data) => {
-								if (data === false) {
-									alert("Pages yang Anda masukkan melebihi dari yang tersedia");
-								}
-								data.forEach((result) => {
-									const row = dataTable.insertRow();
-									const URL = result.url;
-									row.insertCell(0).textContent = result.id;
-									row.insertCell(1).textContent = result.title;
-									row.insertCell(2).textContent = result.category;
-									row.insertCell(3).textContent = result.date;
-									row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
-									const contentBtn = row.insertCell(5);
-									const btn = document.createElement("button");
-									btn.id = "popUpContent";
-									btn.textContent = "View Content";
-									btn.addEventListener("click", function () {
-										fetch("/content", {
-												method: "POST",
-												headers: { "Content-Type": "application/json" },
-												mode: "cors",
-												body: JSON.stringify({ URL }),
-											})
-												.then((response) => response.json())
-												.then((data) => {
-													data.forEach((result) => {
-														getNews = result.content;
-														newsTitle.textContent = "Coba Header";
-														newsContent.textContent = JSON.stringify(getNews);
-  														popupDialog.showModal();
-													})
-												})
-												.catch((error) => {
-													console.error("Terjadi kesalahan:", error);
-												});
-									});
-									contentBtn.appendChild(btn);
-								});
-							})
-							.catch((error) => {
-								console.error("Terjadi kesalahan:", error);
-							});
-					}
-				});
-		</script>
+		<script src="middle.js"></script>
 	</body>
 </html>

@@ -9,11 +9,9 @@ app.use(express.static("public")); // Menggunakan folder 'public' untuk file sta
 app.use(express.json());
 
 // URL artikel yang akan di-crawl
-const baseUrl =
-	"https://www.jawapos.com/sepak-bola-indonesia/013075424/transfer-pemain-persebaya-sho-yamamoto-bertahan-jika-ze-valente-pergi";
+const baseUrl = "https://www.jawapos.com/sepak-bola-indonesia/013075424/transfer-pemain-persebaya-sho-yamamoto-bertahan-jika-ze-valente-pergi";
 const headers = {
-	"User-Agent":
-		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
 };
 
 // Fungsi untuk mengambil data artikel
@@ -29,15 +27,27 @@ app.post("/data", async (req, res) => {
 			if (content.includes("googletag.cmd.push(function() { googletag.display('div-gpt-ad-desktopInArticle')")) {
 				content = $(element).find("p").text();
 			}
+			$("body div > div > div.col-bs10-7 > section > div.read__header.mt2.clearfix > div.read__info").each((index, element) => {
+				const author = $(element).find("div.read__info__author").text().trim();
+				let date = $(element).find("div.read__info__date").text().trim();
+				date = date.slice(2, date.length);
+				console.log(date);
+			});
+
+			$("body div > div > div.col-bs10-7 > section > div.breadcrumb.clearfix").each((index, element) => {
+				const category = $(element).find("ul").text().trim();
+				console.log(category);
+			});
+
 			$("body div > div > div.col-bs10-7 > section > div.read__header.mt2.clearfix").each((index, element) => {
 				const title = $(element).find("h1").text().trim();
 				links.push({ id: index + 1, title: title, url: content });
 			});
-			console.log(links);
 
+			//console.log(links);
 		});
-		
-		console.log(links);
+
+		//console.log(links);
 		res.json(links); // Mengirim data sebagai respons
 	} catch (error) {
 		console.error("Error di server woy", error);

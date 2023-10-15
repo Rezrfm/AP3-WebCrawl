@@ -1,0 +1,59 @@
+/* Tambahkan CSS ini ke dalam file style.css atau dalam tag <style> pada file HTML */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table th,
+table td {
+	padding: 12px;
+	text-align: left;
+}
+
+table th {
+	background-color: #f2f2f2;
+	color: #333;
+	font-weight: bold;
+	border-bottom: 2px solid #ddd;
+}
+
+table tr {
+	background-color: #fff;
+	transition: background-color 0.3s ease-in-out;
+}
+
+table tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+table tr:hover {
+	background-color: #ddd;
+}
+
+table td a {
+	text-decoration: none;
+	color: #007bff;
+	font-weight: bold;
+}
+
+table td a:hover {
+	text-decoration: underline;
+	color: #0056b3;
+}
+
+.author,
+.contentHead,
+.category {
+	margin-bottom: 0;
+}
+
+.publishDate,
+#newsContent,
+.category {
+	margin-top: 0;
+}
+
+#newsContent {
+	text-align: justify;
+}

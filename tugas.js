@@ -70,11 +70,9 @@ app.post("/data", (req, res) => {
 	async function crawlNext(validate) {
 		try {
 			if (validate) {
-				Url = `https://www.jawapos.com/indeks-berita?daterange=${
-					date2.split("-")[2]
-				}%20${mth2}%20${date2.split("-")[0]}%20-%20${
-					date1.split("-")[2]
-				}%20${mth1}%20${date1.split("-")[0]}&page=${page}`;
+				Url = `https://www.jawapos.com/indeks-berita?daterange=${date2.split("-")[2]
+					}%20${mth2}%20${date2.split("-")[0]}%20-%20${date1.split("-")[2]
+					}%20${mth1}%20${date1.split("-")[0]}&page=${page}`;
 			} else {
 				Url = `https://www.jawapos.com/indeks-berita?daterange=&page=${page}`;
 			}
@@ -101,6 +99,7 @@ app.post("/data", (req, res) => {
 
 app.post("/content", async (req, res) => {
 	const { URL } = req.body;
+	let author, date, category;
 	try {
 		const response = await axios.get(URL, { headers });
 		const $ = cheerio.load(response.data);
@@ -113,17 +112,25 @@ app.post("/content", async (req, res) => {
 				content = $(element).find("p").text();
 			}
 
-			if(content.includes(" - "))
-			{
+			if (content.includes(" - ")) {
 				content = content.replace(" - ", "");
-			} else if(content[1] === "–")
-			{
+			} else if (content[1] === "–") {
 				content = content[1].replace(" – ", "");
 			}
 
+			$("body div > div > div.col-bs10-7 > section > div.read__header.mt2.clearfix > div.read__info").each((index, element) => {
+				author = $(element).find("div.read__info__author").text().trim();
+				date = $(element).find("div.read__info__date").text().trim();
+				date = date.slice(2, date.length);
+			});
+
+			$("body div > div > div.col-bs10-7 > section > div.breadcrumb.clearfix").each((index, element) => {
+				category = $(element).find("ul").text().trim();
+			});
+
 			$("body div > div > div.col-bs10-7 > section > div.read__header.mt2.clearfix").each((index, element) => {
 				const title = $(element).find("h1").text().trim();
-				links.push({ id: index + 1, title: title, content: content });
+				links.push({ id: index + 1, title: title, content: content, author: author, date: date, category: category });
 			});
 		});
 		// console.log(links);
