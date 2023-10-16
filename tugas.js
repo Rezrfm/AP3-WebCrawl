@@ -73,11 +73,9 @@ app.post("/data", async (req, res) => {
 	const pageAmount = await pageCheck(Url);
 
 	if (pages > parseInt(pageAmount)) {
-		console.log("Masuk true");
 		paging = false;
-		res.send(paging);
+		res.send({ paging, pageAmount });
 	} else {
-		console.log("Masuk false");
 		paging = true;
 	}
 
@@ -91,18 +89,21 @@ app.post("/data", async (req, res) => {
 		}
 
 		try {
-			if (page <= pages && paging) {
-				const datas = await crawlPage(Url);
-				if (datas) {
-					console.log(`Masuk page ${page}`);
-					links.push(...datas);
-					page = page + 1;
-					crawlNext();
+			if (paging) {
+				if (page <= pages) {
+					const datas = await crawlPage(Url);
+					if (datas) {
+						console.log(`Masuk page ${page}`);
+						links.push(...datas);
+						page = page + 1;
+						crawlNext();
+					}
+				} else {
+					res.json({ links, pageAmount });
+					nomor = 0;
 				}
-			} else {
-				res.json({ links, pageAmount });
-				nomor = 0;
 			}
+
 		} catch (error) {
 			console.error("Error pada saat post url : ", error);
 		}

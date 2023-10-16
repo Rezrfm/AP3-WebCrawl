@@ -43,12 +43,78 @@ document.getElementById("inputForm").addEventListener("submit", function (event)
                 })
                     .then((response) => response.json())
                     .then((data) => {
-
-                        if (data === false) {
-                            alert("Jumlah pages yang Anda masukkan terlalu banyak");
-                        }
                         let getNews, getTitle, getAuthor, getDate, getCategory;
                         pagesAmount.textContent = data.pageAmount;
+                        if (data.paging === false) {
+                            console.log("Masuk kok");
+                            alert(`Jumlah halaman yang Anda masukkan melebihi dari yang tersedia.
+                            Maksimal : ${data.pageAmount} halaman.
+                            Nominal yang Anda masukkan : ${pages} halaman.`);
+                        } else {
+                            data.links.forEach((result) => {
+                                const row = dataTable.insertRow();
+                                const URL = result.url;
+                                row.insertCell(0).textContent = result.id;
+                                row.insertCell(1).textContent = result.title;
+                                row.insertCell(2).textContent = result.category;
+                                row.insertCell(3).textContent = result.date;
+                                row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
+                                const contentBtn = row.insertCell(5);
+                                const btn = document.createElement("button");
+                                btn.textContent = "View Content";
+                                btn.addEventListener("click", function () {
+
+                                    fetch("/content", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        mode: "cors",
+                                        body: JSON.stringify({ URL }),
+                                    })
+                                        .then((response) => response.json())
+                                        .then((data) => {
+                                            data.forEach((result) => {
+                                                getNews = result.content;
+                                                getTitle = result.title;
+                                                getAuthor = result.author;
+                                                getDate = result.date;
+                                                getCategory = result.category;
+                                                newsTitle.textContent = getTitle;
+                                                newsContent.textContent = getNews;
+                                                newsAuthor.textContent = getAuthor;
+                                                newsPublish.textContent = getDate;
+                                                newsCategory.textContent = getCategory;
+                                                popupDialog.showModal();
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            console.error("Terjadi kesalahan:", error);
+                                        });
+                                });
+                                contentBtn.appendChild(btn);
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Terjadi kesalahan:", error);
+                    });
+            }
+        } else {
+            const dateShow = (dateElem.textContent = `${date2} - ${date1}`);
+            fetch("/data", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                mode: "cors",
+                body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    let getNews, getTitle, getAuthor, getDate, getCategory;
+                    pagesAmount.textContent = data.pageAmount;
+                    if (data.paging === false) {
+                        alert(`Jumlah halaman yang Anda masukkan melebihi dari yang tersedia.
+                        Maksimal : ${data.pageAmount} halaman.
+                        Nominal yang Anda masukkan : ${pages} halaman.`);
+                    } else {
                         data.links.forEach((result) => {
                             const row = dataTable.insertRow();
                             const URL = result.url;
@@ -59,9 +125,9 @@ document.getElementById("inputForm").addEventListener("submit", function (event)
                             row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
                             const contentBtn = row.insertCell(5);
                             const btn = document.createElement("button");
+                            btn.id = "popUpContent";
                             btn.textContent = "View Content";
                             btn.addEventListener("click", function () {
-
                                 fetch("/content", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
@@ -90,67 +156,7 @@ document.getElementById("inputForm").addEventListener("submit", function (event)
                             });
                             contentBtn.appendChild(btn);
                         });
-                    })
-                    .catch((error) => {
-                        console.error("Terjadi kesalahan:", error);
-                    });
-            }
-        } else {
-            const dateShow = (dateElem.textContent = `${date2} - ${date1}`);
-            fetch("/data", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                mode: "cors",
-                body: JSON.stringify({ pages, date1, date2, mth1, mth2 }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data === false) {
-                        alert("Pages yang Anda masukkan melebihi dari yang tersedia");
                     }
-                    pagesAmount.textContent = data.pageAmount;
-                    data.links.forEach((result) => {
-                        const row = dataTable.insertRow();
-                        const URL = result.url;
-                        let getNews, getTitle, getAuthor, getDate, getCategory;
-                        row.insertCell(0).textContent = result.id;
-                        row.insertCell(1).textContent = result.title;
-                        row.insertCell(2).textContent = result.category;
-                        row.insertCell(3).textContent = result.date;
-                        row.insertCell(4).innerHTML = `<a href="${result.url}" target="_blank">${result.url}</a>`;
-                        const contentBtn = row.insertCell(5);
-                        const btn = document.createElement("button");
-                        btn.id = "popUpContent";
-                        btn.textContent = "View Content";
-                        btn.addEventListener("click", function () {
-                            fetch("/content", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                mode: "cors",
-                                body: JSON.stringify({ URL }),
-                            })
-                                .then((response) => response.json())
-                                .then((data) => {
-                                    data.forEach((result) => {
-                                        getNews = result.content;
-                                        getTitle = result.title;
-                                        getAuthor = result.author;
-                                        getDate = result.date;
-                                        getCategory = result.category;
-                                        newsTitle.textContent = getTitle;
-                                        newsContent.textContent = getNews;
-                                        newsAuthor.textContent = getAuthor;
-                                        newsPublish.textContent = getDate;
-                                        newsCategory.textContent = getCategory;
-                                        popupDialog.showModal();
-                                    });
-                                })
-                                .catch((error) => {
-                                    console.error("Terjadi kesalahan:", error);
-                                });
-                        });
-                        contentBtn.appendChild(btn);
-                    });
                 })
                 .catch((error) => {
                     console.error("Terjadi kesalahan:", error);
