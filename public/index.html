@@ -1,50 +1,53 @@
+<!-- Nama : Reza Arif Maulana -->
+<!-- NIM : 121103012 -->
+<!-- Prodi : Teknik Informatika -->
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="stylesheet" href="style.css" />
-		<title>Data Crawling Jawa Pos</title>
-	</head>
-	<body>
-		<div>
-			<h2>Data Crawling Jawa Pos</h2>
-			<p>Data Crawling Date : <span id="dateShow"></span></p>
-			<p>Pages Amount Found : <span id="pagesAmount"></span></p>
-			<form id="inputForm">
-				<label for="pages">Pages :</label>
-				<input type="text" name="pages" id="pages" placeholder="Insert here" style="width: 25px" required />
-				<label for="date1">Choose first date:</label>
-				<input type="date" id="date1" name="date1" />
-				<label for="date2">Choose second date:</label>
-				<input type="date" id="date2" name="date2" />
-				<button type="submit">submit</button>
-			</form>
-			<dialog id="popupDialog">
-				<h2 id="newsTitle">News Title</h2>
-				<p class="author">Author : <span id="newsAuthor">News Author</span></p>
-				<p class="category">Category : <span id="newsCategory">News Category</span></p>
-				<p class="publishDate">Date Publish : <span id="newsDate">News Publish Date</span></p>
-				<p class="contentHead">Content :</p>
-				<p id="newsContent">News Content</p>
-				<button id="closePopUp">Close</button>
-			</dialog>
-			<table id="mainTable">
-				<thead>
-					<tr>
-						<th>No.</th>
-						<th>Title</th>
-						<th>Category</th>
-						<th>Date</th>
-						<th>URL</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody id="data-table">
-					<!-- Data crawled akan ditampilkan di sini -->
-				</tbody>
-			</table>
-		</div>
-		<script src="middle.js"></script>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Data Crawling Jawa Pos</title>
+  </head>
+  <body>
+    <div>
+      <h2>Data Crawling Jawa Pos</h2>
+      <p>Data Crawling Date : <span id="dateShow"></span></p>
+      <p>Pages Amount Found : <span id="pagesAmount"></span></p>
+      <form id="inputForm">
+        <label for="pages">Pages :</label>
+        <input type="text" name="pages" id="pages" placeholder="Insert here" style="width: 25px" required />
+        <label for="date1">Choose first date:</label>
+        <input type="date" id="date1" name="date1" />
+        <label for="date2">Choose second date:</label>
+        <input type="date" id="date2" name="date2" />
+        <button type="submit">submit</button>
+      </form>
+      <dialog id="popupDialog">
+        <h2 id="newsTitle">News Title</h2>
+        <p class="author">Author : <span id="newsAuthor">News Author</span></p>
+        <p class="category">Category : <span id="newsCategory">News Category</span></p>
+        <p class="publishDate">Date Publish : <span id="newsDate">News Publish Date</span></p>
+        <p class="contentHead">Content :</p>
+        <p id="newsContent">News Content</p>
+        <button id="closePopUp">Close</button>
+      </dialog>
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>URL</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="data-table">
+          <!-- Data crawled akan ditampilkan di sini -->
+        </tbody>
+      </table>
+    </div>
+    <script src="middle.js"></script>
+  </body>
 </html>
